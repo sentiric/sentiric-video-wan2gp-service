@@ -1,17 +1,29 @@
-torch==2.8.0
+# --- 1. Video & Machine Learning Core ---
+# Wan2.1 desteği için en az diffusers 0.32.0 ve transformers 4.48.0 şarttır.
+torch==2.5.1
 torchvision
 torchaudio
-transformers>=4.41.2
-accelerate>=0.29.0
-diffusers>=0.30.0
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-pydantic>=2.6.0
+diffusers>=0.32.0
+transformers>=4.48.0
+accelerate>=1.1.0
+sentencepiece
+opencv-python
+imageio[ffmpeg]
+peft
+
+# --- 2. Sentiric Standartları (Protobuf & gRPC) ---
+# Platform genelindeki gRPC ve Kontrat standartlarına uyum.
 protobuf>=7.34.0,<8.0.0
 grpcio>=1.62.0
 sentiric-contracts-py @ git+https://github.com/sentiric/sentiric-contracts.git@v1.25.0
+
+# --- 3. Web Framework & Infrastructure ---
+# API, Loglama ve Bulut Entegrasyonları.
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic>=2.6.0
 structlog==24.4.0
 boto3>=1.34.0
 aio-pika>=9.4.0
-imageio[ffmpeg]
-sentencepiece
+python-json-logger>=2.0.7
+prometheus-client>=0.19.0

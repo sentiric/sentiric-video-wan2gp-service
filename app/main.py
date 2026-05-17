@@ -10,11 +10,15 @@ setup_logging("video-wan2gp-service")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Model yüklemesi (Swap sayesinde Killed almayacak)
     wan_engine.initialize()
-    task = asyncio.create_task(serve_grpc())
+    # gRPC sunucusu başlat
+    grpc_task = asyncio.create_task(serve_grpc())
     yield
-    task.cancel()
+    grpc_task.cancel()
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(title=settings.APP_NAME, lifespan=lifespan)
+
 @app.get("/healthz")
-def health(): return {"status": "ok", "service": "video-wan2gp-service"}
+def health():
+    return {"status": "ok", "service": "video-wan2gp-service"}

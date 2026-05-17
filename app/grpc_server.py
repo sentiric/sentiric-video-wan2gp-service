@@ -1,3 +1,4 @@
+# [ARCH-COMPLIANCE] SOP-01: Eksiksiz Teslimat
 import grpc, asyncio, uuid, structlog
 from concurrent import futures
 from sentiric.video.v1 import gateway_pb2, gateway_pb2_grpc
@@ -13,7 +14,9 @@ class VideoGatewayServicer(gateway_pb2_grpc.VideoGatewayServiceServicer):
         tenant_id = metadata.get("x-tenant-id", "unknown")
         job_id = str(uuid.uuid4())
 
-        logger.info("Wan2GP Job Accepted.", event_id="GRPC_JOB_ACCEPTED", trace_id=trace_id)
+        logger.info(f"Wan2GP Job Accepted: {request.prompt[:50]}", event_id="GRPC_JOB_ACCEPTED", trace_id=trace_id)
+        
+        # Asenkron üretim başlat
         asyncio.create_task(wan_engine.generate_async(request.prompt, job_id, trace_id, tenant_id))
 
         return gateway_pb2.SubmitVideoJobResponse(accepted=True, job_id=job_id)
@@ -21,6 +24,7 @@ class VideoGatewayServicer(gateway_pb2_grpc.VideoGatewayServiceServicer):
 async def serve_grpc():
     server = grpc.aio.server(futures.ThreadPoolExecutor(max_workers=2))
     gateway_pb2_grpc.add_VideoGatewayServiceServicer_to_server(VideoGatewayServicer(), server)
+    
     listen_addr = f"[::]:{settings.GRPC_PORT}"
     try:
         with open(settings.KEY_PATH, "rb") as f: pk = f.read()
@@ -31,5 +35,6 @@ async def serve_grpc():
         logger.info(f"gRPC mTLS Ready on {listen_addr}", event_id="GRPC_SERVER_START")
     except Exception as e:
         logger.error(f"mTLS Fail: {e}", event_id="MTLS_FAIL"); raise e
+        
     await server.start()
     await server.wait_for_termination()

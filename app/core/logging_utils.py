@@ -25,5 +25,3 @@ def setup_logging(service_name):
         logger_factory=structlog.stdlib.LoggerFactory(),
     )
     logging.basicConfig(format="%(message)s", stream=sys.stdout, level=logging.INFO)
-
-logger = structlog.get_logger()
